@@ -1,0 +1,43 @@
+name: Vue.js CI Pipeline to Harbor
+
+# main 브랜치에 코드가 push 될 때 파이프라인 실행
+on:
+  push:
+    branches: [ "master" ] 
+
+env:
+  HARBOR_REGISTRY: "amdp-registry.skala-ai.com" # 수정 필요: 실제 Harbor 도메인
+  HARBOR_PROJECT: "skala26a-ai1"          # 수정 필요: Harbor 내 프로젝트 이름
+  IMAGE_NAME: "3003"           # 생성할 Docker 이미지 이름
+  
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 소스 코드 가져오기
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    # 2. Harbor 컨테이너 레지스트리 로그인
+    - name: Login to Harbor Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.HARBOR_REGISTRY }}
+        username: ${{ secrets.HARBOR_USERNAME }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+
+    # 3. Docker 이미지 빌드 및 Harbor에 Push
+    # (Dockerfile의 멀티 스테이지 빌드에 의해 npm build가 이 단계에서 자동 수행됨)
+    - name: Build and Push Docker Image
+      run: |
+        # 이미지 태그 생성 (고유한 commit SHA 값 활용 및 latest 태그 추가)
+        IMAGE_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        LATEST_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:latest
+
+        # 이미지 빌드 (Dockerfile의 Stage 1, 2가 순차적으로 실행됨)
+        docker build -t $IMAGE_URI -t $LATEST_URI .
+
+        # 빌드된 이미지를 Harbor로 Push
+        docker push $IMAGE_URI
+        docker push $LATEST_URI
