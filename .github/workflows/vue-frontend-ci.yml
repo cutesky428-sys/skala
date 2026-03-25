@@ -1,6 +1,6 @@
 name: Vue.js CI/CD Pipeline to Harbor and K8s
 
-# main 브랜치에 코드가 push 될 때 파이프라인 실행
+# master 브랜치에 코드가 push 될 때 파이프라인 실행
 on:
   push:
     branches: [ "master" ] 
@@ -9,6 +9,7 @@ env:
   HARBOR_REGISTRY: "amdp-registry.skala-ai.com"
   HARBOR_PROJECT: "skala26a-ai1"
   IMAGE_NAME: "3003"
+  AWS_REGION: "ap-northeast-2" # 로그에 찍힌 에러 기반 리전 설정
   
 jobs:
   build-and-deploy:
@@ -27,31 +28,43 @@ jobs:
         username: ${{ secrets.HARBOR_USERNAME }}
         password: ${{ secrets.HARBOR_PASSWORD }}
 
-    # 3. Docker 이미지 빌드 및 Harbor에 Push (CI 파트)
+    # 3. Docker 이미지 빌드 및 Harbor에 Push (CI 단계)
     - name: Build and Push Docker Image
       run: |
+        # 이미지 태그 생성 (고유한 commit SHA 값 활용)
         IMAGE_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         LATEST_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:latest
 
+        # 이미지 빌드
         docker build -t $IMAGE_URI -t $LATEST_URI .
 
+        # 빌드된 이미지를 Harbor로 Push
         docker push $IMAGE_URI
         docker push $LATEST_URI
 
-    # 4. Kubernetes 클러스터 접근 권한 설정 (CD 파트 시작)
+    # 4. AWS 자격 증명 설정 (CD를 위한 인증 단계 추가)
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # 5. Kubernetes 클러스터 접근 권한 설정
     - name: Setup Kubeconfig
       uses: azure/k8s-set-context@v3
       with:
         method: kubeconfig
-        kubeconfig: ${{ secrets.KUBECONFIG}}
+        kubeconfig: ${{ secrets.KUBECONFIG }}
 
-    # 5. deployment.yaml 이미지 태그 업데이트 및 클러스터 배포
+    # 6. deployment.yaml 수정 및 클러스터 배포 (CD 단계)
     - name: Update Deployment and Deploy to K8s
       run: |
         IMAGE_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-        # deployment.yaml 파일 내의 'image: ...' 부분을 새로 빌드한 이미지 URI로 덮어쓰기
+        # deployment.yaml 파일 내의 image 주소를 방금 빌드한 최신 이미지(SHA 태그)로 변경
         sed -i "s|image: .*|image: $IMAGE_URI|g" deployment.yaml
 
         # 변경된 설정 파일을 쿠버네티스 클러스터에 적용
-        kubectl apply -f deployment.yaml
+        # 인증 오류를 방지하기 위해 --validate=false 옵션을 추가합니다.
+        kubectl apply -f deployment.yaml --validate=false
