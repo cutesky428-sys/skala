@@ -43,7 +43,7 @@ jobs:
       uses: azure/k8s-set-context@v3
       with:
         method: kubeconfig
-        kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+        kubeconfig: ${{ secrets.KUBECONFIG}}
 
     # 5. deployment.yaml 이미지 태그 업데이트 및 클러스터 배포
     - name: Update Deployment and Deploy to K8s
