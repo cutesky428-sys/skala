@@ -57,7 +57,6 @@ jobs:
         method: kubeconfig
         kubeconfig: ${{ secrets.KUBECONFIG }}
 
-    # 6. deployment.yaml 수정 및 클러스터 배포 (CD 단계)
     - name: Update Deployment and Deploy to K8s
       run: |
         IMAGE_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
