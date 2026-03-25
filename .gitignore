@@ -1,3 +1,4 @@
+HEAD
 # Gradle
 .gradle/
 build/
@@ -18,3 +19,29 @@ Thumbs.db
 .classpath
 .project
 .settings/
+=======
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+>>>>>>> 62a6896f782dc465a9c2ffb2e24fcd939307fc50
