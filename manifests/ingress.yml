@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: sk3003-ingress
+  namespace: skala3-ai1
+spec:
+  ingressClassName: public-nginx
+  tls:
+  - hosts:
+    - 'sk3003.project.skala-ai.com'
+    secretName: skala26a-project-tls-cert
+  rules:
+  - host: sk3003.project.skala-ai.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: sk3003-svc
+            port:
+              number: 80
+        path: /3003(/|$)(.*)
+        pathType: ImplementationSpecific
