@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sk3003-svc
+  namespace: skala3-ai1
+spec:
+  type: ClusterIP
+  selector:
+    app: sk3003-app
+    version: v1
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80

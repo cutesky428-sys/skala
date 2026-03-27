@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sk3003-deploy-canary
+  namespace: skala3-ai1
+  labels:
+    app: sk3003-app
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sk3003-app
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: sk3003-app
+        version: v2
+    spec:
+      containers:
+      - name: sk3003-container
+        # 신규 버전(v2)의 이미지 주소를 기입합니다.
+        image: amdp-registry.skala-ai.com/skala26a-ai1/3003@sha256:7f5e268e184944aa7ab3fcd6c6caf73708f4fe20b86402e69b6526c3dae60604
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: sk3003-storage
+          mountPath: /app/data
+      volumes:
+      - name: sk3003-storage
+        persistentVolumeClaim:
+          claimName: sk3003-pvc

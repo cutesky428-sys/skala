@@ -62,9 +62,8 @@ jobs:
       run: |
         IMAGE_URI=${{ env.HARBOR_REGISTRY }}/${{ env.HARBOR_PROJECT }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-        # deployment.yaml 파일 내의 image 주소를 방금 빌드한 최신 이미지(SHA 태그)로 변경
-        sed -i "s|image: .*|image: $IMAGE_URI|g" deployment.yaml
-
+        # 바로 이 부분에 적어주시는 겁니다!
+        sed -i "s|image: .*|image: $IMAGE_URI|g" manifests/v2/canary-deployment.yaml
+        
         # 변경된 설정 파일을 쿠버네티스 클러스터에 적용
-        # 인증 오류를 방지하기 위해 --validate=false 옵션을 추가합니다.
-        kubectl apply -f deployment.yaml --validate=false
+        kubectl apply -f manifests/v2/canary-deployment.yaml --validate=false
