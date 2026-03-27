@@ -1,11 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: sk3003-ingress
+  namespace: skala3-ai1
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-  name: sk3003-ingress
-  namespace: skala3-ai1
+    nginx.ingress.kubernetes.io/use-regex: "true" # ★ 추가: 정규식을 활성화합니다.
 spec:
   ingressClassName: public-nginx
   tls:

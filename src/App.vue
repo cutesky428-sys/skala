@@ -1,4 +1,5 @@
 <template>
+  <h1>현재 버전은 카나리(v2) 10% 테스트 환경입니다 🐥</h1>
   <div class="app-root">
     <router-view v-slot="{ Component }">
       <transition name="split-door">

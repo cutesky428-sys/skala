@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: sk3003-container
-        image: amdp-registry.skala-ai.com/skala26a-ai1/3003@sha256:7f5e268e184944aa7ab3fcd6c6caf73708f4fe20b86402e69b6526c3dae60604
+        image: amdp-registry.skala-ai.com/skala26a-ai1/3003:latest
         ports:
         - containerPort: 80
         volumeMounts:
