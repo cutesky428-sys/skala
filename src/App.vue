@@ -1,6 +1,8 @@
 <template>
-  <h1>현재 버전은 카나리(v2) 10% 테스트 환경입니다 🐥</h1>
   <div class="app-root">
+    <div class="canary-badge">
+      🐥 카나리(v2) 10% 테스트 환경 접속 성공! 🐥
+    </div>
     <router-view v-slot="{ Component }">
       <transition name="split-door">
         <component :is="Component" class="page-layer" />
@@ -35,6 +37,19 @@
   transition: all 0.8s ease;
 }
 
-/* 🚀 기존에 있던 z-index 속성 강제 부여 삭제 
-   (이제 AuthView가 스스로 z-index 100을 가져가서 대시보드 위를 덮으며 문을 닫습니다) */
+/* 🚀 카나리 배너 전용 스타일 (화면 맨 위 고정, 눈에 띄는 주황색) */
+.canary-badge {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ff9800; /* 눈에 확 띄는 주황색 */
+  color: white;
+  text-align: center;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  z-index: 9999; /* 화면의 가장 맨 위에 뜨도록 설정 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 </style>
